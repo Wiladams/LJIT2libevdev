@@ -149,17 +149,17 @@ int libevdev_get_repeat(const struct libevdev *dev, int *delay, int *period);
 
 local LIB_libevdev = ffi.load("evdev")
 
-local Functions = {
+local exports = {
     LIB_libevdef = LIB_libevdev;
 
     libevdev_new = LIB_libevdev.libevdev_new;
-  libevdev_new_from_fd = LIB_libevdev.libevdev_new_from_fd;
-  libevdev_free = LIB_libevdev.libevdev_free;
+    libevdev_new_from_fd = LIB_libevdev.libevdev_new_from_fd;
+    libevdev_free = LIB_libevdev.libevdev_free;
 
-  libevdev_set_log_function = LIB_libevdev.libevdev_set_log_function;
-  libevdev_set_log_priority = LIB_libevdev.libevdev_set_log_priority;
-  libevdev_get_log_priority = LIB_libevdev.libevdev_get_log_priority;
-  libevdev_set_device_log_function = LIB_libevdev.libevdev_set_device_log_function;
+    libevdev_set_log_function = LIB_libevdev.libevdev_set_log_function;
+    libevdev_set_log_priority = LIB_libevdev.libevdev_set_log_priority;
+    libevdev_get_log_priority = LIB_libevdev.libevdev_get_log_priority;
+    libevdev_set_device_log_function = LIB_libevdev.libevdev_set_device_log_function;
 
 
   libevdev_next_event = LIB_libevdev.libevdev_next_event;
@@ -228,13 +228,11 @@ local Functions = {
   libevdev_get_repeat = LIB_libevdev.libevdev_get_repeat;
 }
 
-local exports = {
-  Functions = Functions;
-}
 
 setmetatable(exports, {
     __call = function(self, tbl)
-      for k,v in pairs(self.Functions) do
+      tbl = tbl or _G;
+      for k,v in pairs(self) do
           tbl[k] = v;
       end
       return self;

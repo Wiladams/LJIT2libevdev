@@ -46,5 +46,41 @@ repeat
 until (rc ~= 1 and rc ~= 0 and rc ~= -EAGAIN);
 ```
 
+
+And here is the code version if you choose to use the more objectified
+version of the API.
+
+```lua
+local input = require("linux_input")(_G);
+local EVDevice = require("EVDevice")
+
+
+local dev, err = EVDevice("/dev/input/event3")
+
+assert(dev, err)
+
+print(string.format("Input device name: \"%s\"\n", dev:name()));
+print(string.format("Input device ID: bus %#x vendor %#x product %#x\n",
+        dev:busType(),
+        dev:vendorId(),
+        dev:productId()));
+
+if (not dev:hasEventType(EV_REL) or not dev:hasEventType(EV_KEY, BTN_LEFT)) then
+    print(string.format("This device does not look like a mouse\n"));
+    error(1);
+end
+
+for _, ev in dev:events() do
+    print(string.format("Event: %s %s %d\n",
+        ev:typeName(),
+        ev:codeName(),
+        ev:value()));
+end
+```
+In this case, you can almost forget you're using a native C library, and just
+enjoy the ease of programming with script.  All garbage collection, string conversion
+and the like is handled by the object interface.
+
+
 References:
     http://www.freedesktop.org/wiki/InputArchitecture/
