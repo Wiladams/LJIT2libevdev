@@ -978,7 +978,6 @@ local exports = {
 setmetatable(exports, {
 	__call = function(self, tbl)
 		copyPairs(self.Constants, tbl);
-
 		return self;
 	end,
 })

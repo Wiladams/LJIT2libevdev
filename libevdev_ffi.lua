@@ -207,10 +207,23 @@ libevdev_disable_event_type = LIB_libevdev.libevdev_disable_event_type;
 libevdev_enable_event_code = LIB_libevdev.libevdev_enable_event_code;
 libevdev_disable_event_code = LIB_libevdev.libevdev_disable_event_code;
 libevdev_kernel_set_abs_info = LIB_libevdev.libevdev_kernel_set_abs_info;
+
+libevdev_event_type_get_name = LIB_libevdev.libevdev_event_type_get_name;
+libevdev_event_code_get_name = LIB_libevdev.libevdev_event_code_get_name;
+libevdev_property_get_name = LIB_libevdev.libevdev_property_get_name;
 }
 
 local exports = {
   Functions = Functions;
 }
+
+setmetatable(exports, {
+    __call = function(self, tbl)
+      for k,v in pairs(self.Functions) do
+          tbl[k] = v;
+      end
+      return self;
+    end,
+})
 
 return exports
