@@ -10,7 +10,7 @@ local dev, err = EVDevice("/dev/input/event3")
 
 assert(dev, err)
 
-print(string.format("Input device name: \"%s\"\n", dev:name()));
+print(string.format("Input device name: \"%s\"", dev:name()));
 print(string.format("Input device ID: bus %#x vendor %#x product %#x\n",
         dev:busType(),
         dev:vendorId(),
@@ -22,7 +22,7 @@ if (not dev:hasEventType(EV_REL) or not dev:hasEventType(EV_KEY, BTN_LEFT)) then
 end
 
 for _, ev in dev:events() do
-    print(string.format("Event: %s %s %d\n",
+    print(string.format("Event: %s %s %d",
         ev:typeName(),
         ev:codeName(),
         ev:value()));

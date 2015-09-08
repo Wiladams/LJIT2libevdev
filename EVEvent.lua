@@ -41,6 +41,10 @@ function EVEvent.codeName(self, aname)
 	return ffi.string(str);
 end
 
+function EVEvent.code(self, code)
+	return tonumber(self.Handle.code);
+end
+
 function EVEvent.value(self, value)
 	return tonumber(self.Handle.value);
 end
