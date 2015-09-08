@@ -18,7 +18,9 @@ struct input_event {
 	uint16_t code;
 	int32_t value;
 };
+]]
 
+ffi.cdef[[
 struct input_id {
 	uint16_t bustype;
 	uint16_t vendor;

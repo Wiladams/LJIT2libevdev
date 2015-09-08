@@ -8,7 +8,7 @@ local setup = require("test_setup")();
 
 
 
-local fd = open("/dev/input/event5", bor(O_RDONLY,O_NONBLOCK));
+local fd = open("/dev/input/event3", bor(O_RDONLY,O_NONBLOCK));
 local dev = ffi.new("struct libevdev *[1]")
 local rc = libevdev_new_from_fd(fd, dev);
 if (rc < 0) then
