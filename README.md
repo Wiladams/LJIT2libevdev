@@ -1,8 +1,20 @@
 # LJIT2libevdev
-LuaJIT binding to liblibevdev - The Linux input event convenience library
+LuaJIT binding to libevdev
 
+libevdev is a library which primarily wraps all the low level ioctl calls that
+support getting raw input device data (keyboard, mouse, joystick) on a Linux system.
+This binding brings the libevdev functions into the luajit environment.
 
-Here is a typical usage, where we want to track mouse activity
+There are two levels of interface.  At the lowest level, there are fairly raw ffi.cdef
+definitions for all the functions found within the library.  If you want to program 
+against an interface that is familiar to 'C' programming, then you can use the 'libevdev_ffi'
+module directly, and be happy.
+
+If you prefer a more Lua like experience, where the low level C strings are turned into
+Lua strings, and iterators are used to get streams of events, then you can program against
+the more object oriented interface represented by the EVDevice module.
+
+Here is a typical usage, where we want to track mouse activity using the low level interface.
 
 ```lua
 local ffi = require("ffi")
@@ -82,5 +94,8 @@ enjoy the ease of programming with script.  All garbage collection, string conve
 and the like is handled by the object interface.
 
 
-References:
-    http://www.freedesktop.org/wiki/InputArchitecture/
+References
+----------
+* http://www.freedesktop.org/software/libevdev/doc/0.4/index.html
+* http://www.freedesktop.org/wiki/InputArchitecture/
+ 
