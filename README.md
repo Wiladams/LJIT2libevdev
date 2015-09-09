@@ -93,6 +93,30 @@ In this case, you can almost forget you're using a native C library, and just
 enjoy the ease of programming with script.  All garbage collection, string conversion
 and the like is handled by the object interface.
 
+Device Selection
+----------------
+If you don't know which specific /dev/input/eventxxx represents your device, but you know the kind of device, such as mouse, you could use the device query/filtering in the following way:
+
+```lua
+local EVContext = require("EVContext")
+
+local dev = EVContext:getMouse();
+
+print(string.format("Input device name: \"%s\"", dev:name()));
+print(string.format("Input device ID: bus %#x vendor %#x product %#x\n",
+        dev:busType(),
+        dev:vendorId(),
+        dev:productId()));
+
+-- print out a constant stream of events
+for _, ev in dev:events() do
+    print(string.format("Event: %s %s %d",
+        ev:typeName(),
+        ev:codeName(),
+        ev:value()));
+end
+```
+This last makes it fairly easy to get a quick handle on generic devices.  You can go further and provide a filtering function to target a more specific mouse, such as 'Logitech', or you could filter on any aspect of the device, such as "has three axes".  This filtering characteristic makes it very convenient to get a handle on a device based on required characteristics.
 
 References
 ----------
