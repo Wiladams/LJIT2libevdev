@@ -1,5 +1,5 @@
 local ffi = require("ffi")
-local libc = require("libc")
+local libc = require("libc")()
 
 
 
@@ -115,6 +115,63 @@ struct ff_effect {
 	} u;
 };
 ]]
+
+
+--[[
+	Ioctl related types, constants, and functions
+--]]
+local int = ffi.typeof("int");
+local int2 = ffi.typeof("int[2]");
+local uint2 = ffi.typeof("unsigned int[2]")
+local input_absinfo = ffi.typeof("struct input_absinfo")
+local input_id = ffi.typeof("struct input_id")
+local input_keymap_entry = ffi.typeof("struct input_keymap_entry");
+local ff_effect = ffi.typeof("struct ff_effect")
+local _IOC = libc._IOC;
+local _IOR = libc._IOR;
+local _IOW = libc._IOW;
+local _IOC_READ = _IOC_READ;
+local _IOC_WRITE = _IOC_WRITE;
+
+
+local IoCtl = {
+	EVIOCGVERSION   = _IOR('E', 0x01, int);     -- get driver version 
+	EVIOCGID        = _IOR('E', 0x02, input_id); -- get device ID 
+	EVIOCGREP       = _IOR('E', 0x03, int2); -- get repeat settings 
+	EVIOCSREP       = _IOW('E', 0x03, int2); -- set repeat settings 
+
+	EVIOCGKEYCODE   = _IOR('E', 0x04, uint2);        -- get keycode 
+	EVIOCGKEYCODE_V2= _IOR('E', 0x04, input_keymap_entry);
+	EVIOCSKEYCODE   = _IOW('E', 0x04, uint2);        -- set keycode 
+	EVIOCSKEYCODE_V2= _IOW('E', 0x04, input_keymap_entry);
+
+	EVIOCGNAME = function(len)  return _IOC(_IOC_READ, 'E', 0x06, len) end;    -- get device name 
+	EVIOCGPHYS = function(len)  return _IOC(_IOC_READ, 'E', 0x07, len) end;    -- get physical location 
+	EVIOCGUNIQ = function(len)  return _IOC(_IOC_READ, 'E', 0x08, len) end;    -- get unique identifier 
+	EVIOCGPROP = function(len)  return _IOC(_IOC_READ, 'E', 0x09, len) end;    -- get device properties 
+
+
+
+	EVIOCGMTSLOTS = function(len)  return _IOC(_IOC_READ, 'E', 0x0a, len) end;
+
+	EVIOCGKEY = function(len)    return _IOC(_IOC_READ, 'E', 0x18, len) end;  -- get global key state 
+	EVIOCGLED = function(len)    return _IOC(_IOC_READ, 'E', 0x19, len) end;  -- get all LEDs 
+	EVIOCGSND = function(len)    return _IOC(_IOC_READ, 'E', 0x1a, len) end;  -- get all sounds status 
+	EVIOCGSW = function(len)   return _IOC(_IOC_READ, 'E', 0x1b, len) end;   -- get all switch states 
+
+	EVIOCGBIT = function(ev,len) return _IOC(_IOC_READ, 'E', 0x20 + (ev), len) end; -- get event bits 
+	EVIOCGABS = function(abs)    return _IOR('E', 0x40 + (abs), input_absinfo) end; -- get abs value/limits 
+	EVIOCSABS = function(abs)    return _IOW('E', 0xc0 + (abs), input_absinfo) end; -- set abs value/limits 
+
+	EVIOCSFF    	= _IOC(_IOC_WRITE, 'E', 0x80, ffi.sizeof(ff_effect)); -- send a force effect to a force feedback device 
+	EVIOCRMFF   	= _IOW('E', 0x81, int);      	-- Erase a force effect 
+	EVIOCGEFFECTS 	=  _IOR('E', 0x84, int);      -- Report number of effects playable at the same time 
+
+	EVIOCGRAB   	= _IOW('E', 0x90, int);      	-- Grab/Release device 
+	EVIOCREVOKE 	=  _IOW('E', 0x91, int);      	-- Revoke device access 
+
+	EVIOCSCLOCKID 	=  _IOW('E', 0xa0, int);      -- Set clockid to be used for timestamps 
+}
 
 
 
@@ -1021,6 +1078,8 @@ local exports = {
 	-- local functions
 	getValueName = getValueName;
 	getTypeCodeName = getTypeCodeName;
+
+	IoCtl = IoCtl;
 }
 
 -- export into given table

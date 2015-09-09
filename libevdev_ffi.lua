@@ -5,6 +5,11 @@
 --]]
 
 local ffi = require("ffi")
+local bit = require("bit")
+local band, bor = bit.band, bit.bor
+local lshift, rshift = bit.lshift, bit.rshift
+
+
 
 ffi.cdef[[
 enum libevdev_read_flag {
@@ -146,6 +151,9 @@ int libevdev_property_from_name(const char *name);
 int libevdev_property_from_name_n(const char *name, size_t len);
 int libevdev_get_repeat(const struct libevdev *dev, int *delay, int *period);
 ]]
+
+
+
 
 local LIB_libevdev = ffi.load("evdev")
 

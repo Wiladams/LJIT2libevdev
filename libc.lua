@@ -6,10 +6,49 @@
 	this file can go away.
 --]]
 local ffi = require("ffi")
+local bit = require("bit")
+local band, bor = bit.band, bit.bor
+local lshift, rshift = bit.lshift, bit.rshift
+
+
+-- very x86_64 specific
+local IOC = {
+  DIRSHIFT = 30;
+  TYPESHIFT = 8;
+  NRSHIFT = 0;
+  SIZESHIFT = 16;
+}
+
+local function ioc(dir, ch, nr, size)
+  if type(ch) == "string" then ch = ch:byte() end
+
+  return bor(lshift(dir, IOC.DIRSHIFT), 
+       lshift(ch, IOC.TYPESHIFT), 
+       lshift(nr, IOC.NRSHIFT), 
+       lshift(size, IOC.SIZESHIFT))
+end
+
+local function _IOC(a,b,c,d) 
+  return ioc(a,b,c,d);
+end
+
+local _IOC_NONE  = 0;
+local _IOC_WRITE = 1;
+local _IOC_READ  = 2;
+
+local function _IO(a,b) _IOC(_IOC_NONE,a,b,0) end
+local function _IOW(a,b,c) _IOC(_IOC_WRITE,a,b,ffi.sizeof(c)) end
+local function _IOR(a,b,c) _IOC(_IOC_READ,a,b,ffi.sizeof(c)) end
+local function _IOWR(a,b,c) _IOC(bor(_IOC_READ,_IOC_WRITE),a,b,ffi.sizeof(c)) end
+
 
 local function octal(value)
 	return tonumber(value, 8);
 end
+
+--[[
+	ioctl for input
+--]]
 
 -- TODO
 -- As struct timeval is in common libc headers, this definition can 
@@ -51,7 +90,19 @@ local exports = {
 	strerror = ffi.C.strerror;
 
 	-- Local functions
+
 	safeffistring = safeffistring;
+
+	-- ioctl
+	_IOC_NONE = _IOC_NONE;
+	_IOC_READ = _IOC_READ;
+	_IOC_WRITE = _IOC_WRITE;
+
+	_IOC = _IOC;
+	_IO = _IO;
+	_IOR = _IOR;
+	_IOW = _IOW;
+	_IOWR = _IOWR;
 }
 
 setmetatable(exports, {
