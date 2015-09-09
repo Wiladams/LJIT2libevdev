@@ -1,15 +1,7 @@
 local ffi = require("ffi")
+local libc = require("libc")
 
--- TODO
--- As struct timeval is in common libc headers, this definition can 
--- go away if it's already defined
--- Also, this definition may not be correct for 32-bit
-ffi.cdef[[
-typedef long time_t;
-typedef long suseconds_t;
 
-struct timeval { time_t tv_sec; suseconds_t tv_usec; };
-]]
 
 ffi.cdef[[
 struct input_event {
@@ -972,8 +964,19 @@ copyPairs(ForceFeedbackEffectTypes, Constants)
 copyPairs(ForceFeedbackPeriodicEffectTypes, Constants)
 copyPairs(ForceFeedbackDeviceProperties, Constants)
 
+local function lookupConstant(value)
+	for k,v in pairs(Constants)do
+		if v == value then
+			return k;
+		end
+	end
+
+	return "UNKNOWN"
+end
+
 local exports = {
 	Constants = Constants;
+	lookupConstant = lookupConstant;
 }
 
 -- export into given table

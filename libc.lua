@@ -11,6 +11,17 @@ local function octal(value)
 	return tonumber(value, 8);
 end
 
+-- TODO
+-- As struct timeval is in common libc headers, this definition can 
+-- go away if it's already defined
+-- Also, this definition may not be correct for 32-bit
+ffi.cdef[[
+typedef long time_t;
+typedef long suseconds_t;
+
+struct timeval { time_t tv_sec; suseconds_t tv_usec; };
+]]
+
 ffi.cdef[[
 int printf(const char *__restrict, ...);
 int open(const char *, int, ...);
