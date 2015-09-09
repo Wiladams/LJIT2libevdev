@@ -6,6 +6,8 @@ local band, bor = bit.band, bit.bor;
 
 local libevdev = require("libevdev_ffi")
 local libc = require("libc")
+local input = require("linux_input")
+
 
 
 local EVEvent = {}
@@ -32,13 +34,11 @@ function EVEvent.new(self, handle)
 end
 
 function EVEvent.typeName(self, aname)
-    local str = libevdev.libevdev_event_type_get_name(self.Handle.type);
-    return ffi.string(str);
+	return input.getValueName(self.Handle.type, input.EventTypes)
 end
 
 function EVEvent.codeName(self, aname)
-	local str = libevdev.libevdev_event_code_get_name(self.Handle.type, self.Handle.code);
-	return ffi.string(str);
+	return input.getTypeCodeName(self.Handle.type, self.Handle.code)
 end
 
 function EVEvent.code(self, code)

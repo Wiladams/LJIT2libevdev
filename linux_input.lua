@@ -121,7 +121,9 @@ struct ff_effect {
 local Misc = {
 	EV_VERSION				= 0x010001;
 	INPUT_KEYMAP_BY_INDEX	= 0x01;	-- (1 << 0)
+}
 
+local Properties = {
 	INPUT_PROP_POINTER		= 0x00;	-- needs a pointer 
 	INPUT_PROP_DIRECT		= 0x01;	-- direct input devices 
 	INPUT_PROP_BUTTONPAD	= 0x02;	-- has button(s) under pad 
@@ -908,11 +910,7 @@ local ForceFeedbackEffectTypes = {
 
 	FF_EFFECT_MIN	= 0x50;	-- FF_RUMBLE
 	FF_EFFECT_MAX	= 0x57;	-- FF_RAMP
-}
 
-
-
-local ForceFeedbackPeriodicEffectTypes = {
 	FF_SQUARE	= 0x58;
 	FF_TRIANGLE	= 0x59;
 	FF_SINE		= 0x5a;
@@ -945,8 +943,25 @@ local function copyPairs(src, dst)
 	return dst
 end
 
+local typeCodeMap = {
+	[EventTypes.EV_SYN]	= SyncEvents;
+	[EventTypes.EV_KEY]	= KeysAndButtons;
+	[EventTypes.EV_REL]	= RelativeAxes;
+	[EventTypes.EV_ABS]	= AbsoluteAxes;
+	[EventTypes.EV_MSC]	= MiscEvents;
+	[EventTypes.EV_SW]	= SwitchEvents;
+	[EventTypes.EV_LED]	= LEDs;
+	[EventTypes.EV_SND]	= Sounds;
+	[EventTypes.EV_REP]	= AutoRepeat;
+	[EventTypes.EV_FF]	= ForceFeedbackEffectTypes;
+	[EventTypes.EV_PWR]	= {};
+	[EventTypes.EV_FF_STATUS]	= ForceFeedbackStatus;
+
+}
+
 local Constants = {}
 copyPairs(Misc, Constants)
+copyPairs(Properties, Constants)
 copyPairs(EventTypes, Constants)
 copyPairs(SyncEvents, Constants)
 copyPairs(KeysAndButtons, Constants)
@@ -961,11 +976,11 @@ copyPairs(IDs, Constants)
 copyPairs(MTToolTypes, Constants)
 copyPairs(ForceFeedbackStatus, Constants)
 copyPairs(ForceFeedbackEffectTypes, Constants)
-copyPairs(ForceFeedbackPeriodicEffectTypes, Constants)
 copyPairs(ForceFeedbackDeviceProperties, Constants)
 
-local function lookupConstant(value)
-	for k,v in pairs(Constants)do
+local function getValueName(value, tbl)
+	tbl = tbl or Constants
+	for k,v in pairs(tbl)do
 		if v == value then
 			return k;
 		end
@@ -974,9 +989,38 @@ local function lookupConstant(value)
 	return "UNKNOWN"
 end
 
+local function getTypeCodeName(atype, acode)
+	local tbl = typeCodeMap[atype]
+	if not tbl then return "UNKNOWN" end
+
+	return getValueName(acode, tbl);
+end
+
 local exports = {
+	Misc = Misc;
+	Properties = Properties;
+	EventTypes = EventTypes;
+	SyncEvents = SyncEvents;
+	KeysAndButtons = KeysAndButtons;
+	RelativeAxes = RelativeAxes;
+	AbsoluteAxes = AbsoluteAxes;
+	SwitchEvents = SwitchEvents;
+	MiscEvents = MiscEvents;
+	LEDs = LEDs;
+	AutoRepeat = AutoRepeat;
+	Sounds = Sounds;
+	IDs = IDs;
+	MTToolTypes = MTToolTypes;
+	ForceFeedbackStatus = ForceFeedbackStatus;
+	ForceFeedbackEffectTypes = ForceFeedbackEffectTypes;
+	ForceFeedbackPeriodicEffectTypes = ForceFeedbackPeriodicEffectTypes;
+	ForceFeedbackDeviceProperties = ForceFeedbackDeviceProperties;
+
 	Constants = Constants;
-	lookupConstant = lookupConstant;
+
+	-- local functions
+	getValueName = getValueName;
+	getTypeCodeName = getTypeCodeName;
 }
 
 -- export into given table

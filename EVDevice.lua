@@ -121,10 +121,10 @@ function EVDevice.isLikeKeyboard(self)
 end
 
 function EVDevice.isLikeMouse(self)
-	if (self:hasEventType(EV_REL) and
-    	self:hasEventCode(EV_REL, REL_X) and
-    	self:hasEventCode(EV_REL, REL_Y) and
-    	self:hasEventCode(EV_KEY, BTN_LEFT)) then
+	if (self:hasEventType(input.Constants.EV_REL) and
+    	self:hasEventCode(input.Constants.EV_REL, input.Constants.REL_X) and
+    	self:hasEventCode(input.Constants.EV_REL, input.Constants.REL_Y) and
+    	self:hasEventCode(input.Constants.EV_KEY, input.Constants.BTN_LEFT)) then
     	
     	return true;
     end
@@ -133,8 +133,8 @@ function EVDevice.isLikeMouse(self)
 end
 
 function EVDevice.isLikeTablet(self)
-	if (self:hasEventType(EV_ABS) and
-    	self:hasEventCode(EV_KEY, BTN_LEFT)) then
+	if (self:hasEventType(input.Constants.EV_ABS) and
+    	self:hasEventCode(input.Constants.EV_KEY, input.Constants.BTN_LEFT)) then
     	
     	return true;
     end
@@ -176,8 +176,7 @@ function EVDevice.printProperties(self)
 			return;
 		end
 
-		print(string.format("  Property type %d (%s)", 
-				prop, libc.safeffistring(libevdev.libevdev_property_get_name(prop))));
+		print(string.format("  Property type %d (%s)", prop, input.getValueName(prop, input.Properties)));
 	end
 
 	printProperty(INPUT_PROP_POINTER)
