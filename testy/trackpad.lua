@@ -3,13 +3,17 @@
     Open up something that might be a mouse, and track it
 --]]
 package.path = package.path..";../?.lua"
-local input = require("linux_input")(_G);
-local EVDevice = require("EVDevice")
+local input = require("linux_input");
 
+local EVContext = require("EVContext")
 
-local dev, err = EVDevice("/dev/input/event5")
+local function isTrackPad(dev)
+	return dev:hasProperty(input.Constants.INPUT_PROP_SEMI_MT)
+end
 
-assert(dev, err)
+local dev = EVContext:getDevice(isTrackPad);
+
+assert(dev, "no trackpad found")
 
 print(string.format("Input device name: \"%s\"", dev:name()));
 print(string.format("Input device ID: bus %#x vendor %#x product %#x\n",
@@ -17,12 +21,7 @@ print(string.format("Input device ID: bus %#x vendor %#x product %#x\n",
         dev:vendorId(),
         dev:productId()));
 
-if not dev:isLikeMouse() then
---if (not dev:hasEventType(EV_REL) or not dev:hasEventType(EV_KEY, BTN_LEFT)) then
-    print(string.format("This device does not look like a mouse\n"));
-    error(1);
-end
-
+-- print out a constant stream of events
 for _, ev in dev:events() do
     print(string.format("Event: %s %s %d",
         ev:typeName(),

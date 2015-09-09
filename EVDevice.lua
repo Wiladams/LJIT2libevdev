@@ -12,6 +12,7 @@ local band, bor = bit.band, bit.bor;
 
 local libevdev = require("libevdev_ffi")
 local libc = require("libc")
+local input = require("linux_input")(_G);
 local EVEvent = require("EVEvent")
 
 
@@ -25,9 +26,10 @@ local EVDevice_mt = {
 	__index = EVDevice;
 }
 
-function EVDevice.init(self, handle)
+function EVDevice.init(self, handle, nodename)
 	local obj = {
 		Handle = handle;
+		NodeName = nodename;
 	}
 	setmetatable(obj, EVDevice_mt);
 
@@ -42,6 +44,7 @@ end
 function EVDevice.new(self, ...)
 	local dev = nil;
 	local fd = 0;
+	local nodename = nil;
 
 	if select('#', ...) < 1 then
 		return nil, "not enough arguments specified"
@@ -51,7 +54,8 @@ function EVDevice.new(self, ...)
 	if type(select(1, ...)) == "string" then
 		-- a filename was specified
 		local access = select(2, ...) or bor(libc.O_RDONLY,libc.O_NONBLOCK);
-		fd = libc.open(select(1,...), access);	
+		nodename = select(1,...)
+		fd = libc.open(nodename, access);	
 	end
 
 	local dev = ffi.new("struct libevdev *[1]")
@@ -62,16 +66,25 @@ function EVDevice.new(self, ...)
 	dev = dev[0];
 	ffi.gc(dev, libevdev.libevdev_free);
 
-	return EVDevice:init(dev);
+	return EVDevice:init(dev, nodename);
 end
 
+
+
 -- Qualities
-function EVDevice.hasEventPending(self)
-	return libevdev.libevdev_has_event_pending(self.Handle) == 1;
-end
+
 
 function EVDevice.hasEventType(self, atype)
 	return libevdev.libevdev_has_event_type(self.Handle, atype) == 1;
+end
+
+function EVDevice.hasEventCode(self, eventType, eventCode)
+	return libevdev.libevdev_has_event_code(self.Handle, eventType, eventCode) == 1;
+end
+
+function EVDevice.hasProperty(self, prop)
+	local res =  libevdev.libevdev_has_property(self.Handle, prop);
+	return res == 1;
 end
 
 -- Attributes
@@ -89,21 +102,51 @@ end
 
 function EVDevice.name(self, name)
 	local str = libevdev.libevdev_get_name(self.Handle);
-	return ffi.string(str);
+	return libc.safeffistring(str);
 end
 
 function EVDevice.physical(self, name)
 	local str = libevdev.libevdev_get_phys(self.Handle)
-	return ffi.string(str)
+	return libc.safeffistring(str)
 end
 
 function EVDevice.unique(self, name)
 	local str = libevdev.libevdev_get_uniq(self.Handle)
-	return ffi.string(str)
+	return libc.safeffistring(str)
+end
+
+-- Behaviors
+function EVDevice.isLikeKeyboard(self)
+	return self:name():lower():find("keyboard") ~= nil
+end
+
+function EVDevice.isLikeMouse(self)
+	if (self:hasEventType(EV_REL) and
+    	self:hasEventCode(EV_REL, REL_X) and
+    	self:hasEventCode(EV_REL, REL_Y) and
+    	self:hasEventCode(EV_KEY, BTN_LEFT)) then
+    	
+    	return true;
+    end
+
+    return false;
+end
+
+function EVDevice.isLikeTablet(self)
+	if (self:hasEventType(EV_ABS) and
+    	self:hasEventCode(EV_KEY, BTN_LEFT)) then
+    	
+    	return true;
+    end
+
+    return false;
 end
 
 
 -- Events
+function EVDevice.eventIsPending(self)
+	return libevdev.libevdev_has_event_pending(self.Handle) == 1;
+end
 
 -- Iterator of events
 -- will block until an even comes
@@ -123,6 +166,26 @@ function EVDevice.events(self, flags, ev)
 	end
 
 	return iter_gen, self, state 
+end
+
+function EVDevice.printProperties(self)
+	print("Properties:");
+
+	local function printProperty(prop)
+		if not self:hasProperty(prop) then
+			return;
+		end
+
+		print(string.format("  Property type %d (%s)", 
+				prop, libc.safeffistring(libevdev.libevdev_property_get_name(prop))));
+	end
+
+	printProperty(INPUT_PROP_POINTER)
+	printProperty(INPUT_PROP_DIRECT)
+	printProperty(INPUT_PROP_BUTTONPAD)
+	printProperty(INPUT_PROP_SEMI_MT)
+	printProperty(INPUT_PROP_TOPBUTTONPAD)
+
 end
 
 return EVDevice

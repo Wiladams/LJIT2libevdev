@@ -98,4 +98,4 @@ References
 ----------
 * http://www.freedesktop.org/software/libevdev/doc/0.4/index.html
 * http://www.freedesktop.org/wiki/InputArchitecture/
- 
+* http://who-t.blogspot.com/2013/09/libevdev-handling-input-events.html

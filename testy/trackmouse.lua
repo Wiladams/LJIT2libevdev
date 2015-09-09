@@ -1,15 +1,17 @@
 --[[
-    Use the object interface to simplify making the library calls.
     Open up something that might be a mouse, and track it
 --]]
 package.path = package.path..";../?.lua"
-local input = require("linux_input")(_G);
-local EVDevice = require("EVDevice")
 
+local EVContext = require("EVContext")
 
-local dev, err = EVDevice("/dev/input/event5")
+local function isLogitech(dev)
+	return dev:name():lower():find("logitech") ~= nil
+end
 
-assert(dev, err)
+local dev = EVContext:getMouse(isLogitech);
+
+assert(dev, "no mouse found")
 
 print(string.format("Input device name: \"%s\"", dev:name()));
 print(string.format("Input device ID: bus %#x vendor %#x product %#x\n",
@@ -17,12 +19,7 @@ print(string.format("Input device ID: bus %#x vendor %#x product %#x\n",
         dev:vendorId(),
         dev:productId()));
 
-if not dev:isLikeMouse() then
---if (not dev:hasEventType(EV_REL) or not dev:hasEventType(EV_KEY, BTN_LEFT)) then
-    print(string.format("This device does not look like a mouse\n"));
-    error(1);
-end
-
+-- print out a constant stream of events
 for _, ev in dev:events() do
     print(string.format("Event: %s %s %d",
         ev:typeName(),

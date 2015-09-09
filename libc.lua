@@ -17,6 +17,13 @@ int open(const char *, int, ...);
 extern char *strerror (int __errnum);
 ]]
 
+local function safeffistring(value)
+	if value == nil then
+		return nil;
+	end
+
+	return ffi.string(value);
+end
 
 local exports = {
 	-- Constants
@@ -31,6 +38,9 @@ local exports = {
 	open = ffi.C.open;
 	printf = ffi.C.printf;
 	strerror = ffi.C.strerror;
+
+	-- Local functions
+	safeffistring = safeffistring;
 }
 
 setmetatable(exports, {
