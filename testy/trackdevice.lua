@@ -21,6 +21,11 @@ print(string.format("Input device ID: bus %#x vendor %#x product %#x\n",
         dev:productId()));
 
 -- print out a constant stream of events
-for _, ev in dev:events() do
+local function filter(ev)
+--	print("TYPENAME: ", ev:typeName(), ev:typeName() ~= "EV_SYN")
+	return ev:typeName() ~= "EV_SYN" and ev:typeName() ~= "EV_MSC"
+end
+
+for _, ev in dev:events(filter) do
     print(string.format("{'%s', '%s', %d};",ev:typeName(),ev:codeName(),ev:value()));
 end

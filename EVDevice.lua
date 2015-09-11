@@ -150,22 +150,39 @@ end
 
 -- Iterator of events
 -- will block until an even comes
-function EVDevice.events(self, flags, ev)
-	local function iter_gen(param, state)
+function EVDevice.events(self, predicate)
+	local function iter_gen(params, flags)
 		local flags = flags or ffi.C.LIBEVDEV_READ_FLAG_NORMAL;
-		local ev = ev or ffi.new("struct input_event");
+		local ev = ffi.new("struct input_event");
+		local event = EVEvent(ev);
 		local rc = 0;
-		repeat
-			rc = libevdev.libevdev_next_event(param.Handle, flags, ev);
-		until rc ~= -libc.EAGAIN
-		if (rc == ffi.C.LIBEVDEV_READ_STATUS_SUCCESS) or (rc == ffi.C.LIBEVDEV_READ_STATUS_SYNC) then
-			return ev, EVEvent(ev);
+
+		if params.Predicate then
+			repeat
+				rc = libevdev.libevdev_next_event(params.Handle, flags, ev);
+				if (rc == ffi.C.LIBEVDEV_READ_STATUS_SUCCESS) or (rc == ffi.C.LIBEVDEV_READ_STATUS_SYNC) then				
+					if params.Predicate(event) then
+						return flags, event
+					end
+				end				
+			until rc ~= ffi.C.LIBEVDEV_READ_STATUS_SUCCESS and 
+				rc ~= LIBEVDEV_READ_STATUS_SYNC and
+				rc ~= -libc.EAGAIN	
+		else 
+			repeat
+				rc = libevdev.libevdev_next_event(params.Handle, flags, ev);
+			until rc ~= -libc.EAGAIN
+		
+			if (rc == ffi.C.LIBEVDEV_READ_STATUS_SUCCESS) or (rc == ffi.C.LIBEVDEV_READ_STATUS_SYNC) then
+				return flags, event;
+			end
 		end
+
 
 		return nil, rc;
 	end
 
-	return iter_gen, self, state 
+	return iter_gen, {Handle = self.Handle, Predicate=predicate}, state 
 end
 
 function EVDevice.printProperties(self)
