@@ -5,11 +5,13 @@ package.path = package.path..";../?.lua"
 
 local EVContext = require("EVContext")
 
+-- This predicate function can be passed into getMouse(isLogitech)
+-- if you want to get a mouse that is from Logitech
 local function isLogitech(dev)
 	return dev:name():lower():find("logitech") ~= nil
 end
 
-local dev = EVContext:getMouse(isLogitech);
+local dev = EVContext:getMouse();
 
 assert(dev, "no mouse found")
 
@@ -21,8 +23,10 @@ print(string.format("Input device ID: bus %#x vendor %#x product %#x\n",
 
 -- print out a constant stream of events
 for _, ev in dev:events() do
-    print(string.format("Event: %s %s %d",
+	if ev:typeName() == "EV_REL" or ev:typeName() == "EV_KEY" then
+    	print(string.format("Event: %s %s %d",
         ev:typeName(),
         ev:codeName(),
         ev:value()));
+	end
 end
