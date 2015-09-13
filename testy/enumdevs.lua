@@ -1,3 +1,4 @@
+#!/usr/bin/env luajit
 --enumdevs.lua
 --[[
 	Enumerate all the /dev/input/event devices
@@ -5,13 +6,11 @@
 --]]
 package.path = package.path..";../?.lua"
 local EVContext = require("EVContext")
+local utils = require("utils")
+
 
 for _, dev in EVContext:devices() do
-	print("==== Device ====")
-	print("    Node: ", dev.NodeName)
-	print("    Name: ", dev:name())
-	print("Physical: ", dev:physical())
-	dev:printProperties();
+	utils.printDevice(dev)
 end
 
 print("== DONE ==")

@@ -1,3 +1,4 @@
+#!/usr/bin/env luajit
 --[[
     Use the object interface to simplify making the library calls.
     Open up something, and track it
@@ -12,13 +13,11 @@ package.path = package.path..";../?.lua"
 
 local dev = require("EVDevice")(arg[1])
 assert(dev)
+local utils = require("utils")
 
 
-print(string.format("Input device name: \"%s\"", dev:name()));
-print(string.format("Input device ID: bus %#x vendor %#x product %#x\n",
-        dev:busType(),
-        dev:vendorId(),
-        dev:productId()));
+utils.printDevice(dev);
+print("===== ===== =====")
 
 -- print out a constant stream of events
 local function filter(ev)

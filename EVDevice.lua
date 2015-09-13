@@ -116,6 +116,12 @@ function EVDevice.unique(self, name)
 end
 
 -- Behaviors
+function EVDevice.isLikeFlightStick(self)
+	return self:hasEventCode(input.Constants.EV_ABS, input.Constants.ABS_X) and
+		self:hasEventCode(input.Constants.EV_ABS, input.Constants.ABS_Y) and
+		self:hasEventCode(input.Constants.EV_ABS, input.Constants.ABS_THROTTLE)
+end
+
 function EVDevice.isLikeKeyboard(self)
 	return self:name():lower():find("keyboard") ~= nil
 end
