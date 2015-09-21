@@ -89,6 +89,37 @@ for _, ev in dev:events() do
         ev:value()));
 end
 ```
+
+And finally, the brain dead simple version (trackdevice.lua) which can be used to track the 
+events on any known device:
+
+```bash
+$ trackdevice.lua /dev/input/event3
+```
+
+The code for trackdevice.lua looks like this:
+
+```lua
+package.path = package.path..";../?.lua"
+
+local dev = require("EVDevice")(arg[1])
+assert(dev)
+local utils = require("utils")
+
+
+utils.printDevice(dev);
+print("===== ===== =====")
+
+-- filter out the non-essential event reports
+local function filter(ev)
+    return ev:typeName() ~= "EV_SYN" and ev:typeName() ~= "EV_MSC"
+end
+
+for _, ev in dev:events(filter) do
+    print(string.format("{'%s', '%s', %d};",ev:typeName(),ev:codeName(),ev:value()));
+end
+```
+
 In this case, you can almost forget you're using a native C library, and just
 enjoy the ease of programming with script.  All garbage collection, string conversion
 and the like is handled by the object interface.
