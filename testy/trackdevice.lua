@@ -1,10 +1,13 @@
 #!/usr/bin/env luajit
 --[[
-    Use the object interface to simplify making the library calls.
-    Open up something, and track it
+    Use this script to continuously tracky any kind of input device
+    that is generating events.  It will print out the meta data for 
+    the event.  This is convenient when you've got a new input device
+    and you want to discover the series of event types and codes that
+    it generates.
 
     Usage:
-    $ sudo luajit trackdevice /dev/input/eventxxx
+    $ sudo trackdevice.lua /dev/input/eventxxx
 
     where 'xxx' is the event number you want to track.
 --]]

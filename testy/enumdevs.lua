@@ -1,5 +1,5 @@
 #!/usr/bin/env luajit
---enumdevs.lua
+
 --[[
 	Enumerate all the /dev/input/event devices
 	printing something interesting about each one
