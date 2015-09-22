@@ -163,6 +163,7 @@ function EVDevice.events(self, predicate)
 		local event = EVEvent(ev);
 		local rc = 0;
 
+
 		if params.Predicate then
 			repeat
 				rc = evdev.libevdev_next_event(params.Handle, flags, ev);
@@ -175,6 +176,7 @@ function EVDevice.events(self, predicate)
 				rc ~= LIBEVDEV_READ_STATUS_SYNC and
 				rc ~= -libc.EAGAIN	
 		else 
+
 			repeat
 				rc = evdev.libevdev_next_event(params.Handle, flags, ev);
 			until rc ~= -libc.EAGAIN
@@ -190,6 +192,29 @@ function EVDevice.events(self, predicate)
 
 	return iter_gen, {Handle = self.Handle, Predicate=predicate}, state 
 end
+
+function EVDevice.rawEvents(self)
+	local function iter_gen(params, flags)
+		local flags = flags or ffi.C.LIBEVDEV_READ_FLAG_NORMAL;
+		local ev = ffi.new("struct input_event");
+		--local event = EVEvent(ev);
+		local rc = 0;
+
+
+		repeat
+			rc = evdev.libevdev_next_event(params.Handle, flags, ev);
+		until rc ~= -libc.EAGAIN
+		
+		if (rc == ffi.C.LIBEVDEV_READ_STATUS_SUCCESS) or (rc == ffi.C.LIBEVDEV_READ_STATUS_SYNC) then
+			return flags, ev;
+		end
+
+		return nil, rc;
+	end
+
+	return iter_gen, {Handle = self.Handle}, state 
+end
+
 
 function EVDevice.properties(self)
 	local function prop_gen(param, state)
