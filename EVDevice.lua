@@ -191,23 +191,24 @@ function EVDevice.events(self, predicate)
 	return iter_gen, {Handle = self.Handle, Predicate=predicate}, state 
 end
 
-function EVDevice.printProperties(self)
-	print("Properties:");
-
-	local function printProperty(prop)
-		if not self:hasProperty(prop) then
-			return;
+function EVDevice.properties(self)
+	local function prop_gen(param, state)
+		if state > input.Properties.INPUT_PROP_MAX then
+			return nil;
 		end
 
-		print(string.format("  Property type %d (%s)", prop, input.getValueName(prop, input.Properties)));
+		repeat
+			if param:hasProperty(state) then
+				return state + 1, state, input.getValueName(state, input.Properties)
+			end
+			state = state + 1;
+		until state > input.Properties.INPUT_PROP_MAX
+
+		return nil;
 	end
 
-	printProperty(INPUT_PROP_POINTER)
-	printProperty(INPUT_PROP_DIRECT)
-	printProperty(INPUT_PROP_BUTTONPAD)
-	printProperty(INPUT_PROP_SEMI_MT)
-	printProperty(INPUT_PROP_TOPBUTTONPAD)
-
+	return prop_gen, self, input.Properties.INPUT_PROP_POINTER
 end
+
 
 return EVDevice
