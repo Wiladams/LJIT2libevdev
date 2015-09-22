@@ -4,7 +4,7 @@ local ffi = require("ffi")
 local bit = require("bit")
 local band, bor = bit.band, bit.bor;
 
-local libevdev = require("libevdev_ffi")
+--local evdev = require("evdev")
 local libc = require("libc")
 local input = require("linux_input")
 

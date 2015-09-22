@@ -1,29 +1,29 @@
 --EVContext.lua
 local ffi = require("ffi")
-local libevdev = require("libevdev_ffi")
+local evdev = require("evdev")
 local EVDevice = require("EVDevice")
 
 
 EVContext = {}
 function EVContext.newDevice(self)
-	local dev = libevdev.libevdev_new();
-	ffi.gc(dev, libevdev.libevdev_free);
+	local dev = evdev.libevdev_new();
+	ffi.gc(dev, evdev.libevdev_free);
 
 	return EVDevice:init(dev);
 end
 
 function EVContext.setLogFunction(self, logfunc, data)
-	libevdev.libevdev_set_log_function(logfunc, data);
+	evdev.libevdev_set_log_function(logfunc, data);
 
 	return true;
 end
 
 function EVContext.logPriority(self, priority)
 	if not priority then
-		return tonumber(libevdev.libevdev_get_log_priority());
+		return tonumber(evdev.libevdev_get_log_priority());
 	end
 
-	libevdev.libevdev_set_log_priority(priority);
+	evdev.libevdev_set_log_priority(priority);
 end
 
 function EVContext.devices(self, type, code)

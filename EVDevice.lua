@@ -10,7 +10,7 @@ local ffi = require("ffi")
 local bit = require("bit")
 local band, bor = bit.band, bit.bor;
 
-local libevdev = require("libevdev_ffi")
+local evdev = require("evdev")
 local libc = require("libc")
 local input = require("linux_input")(_G);
 local EVEvent = require("EVEvent")
@@ -59,12 +59,12 @@ function EVDevice.new(self, ...)
 	end
 
 	local dev = ffi.new("struct libevdev *[1]")
-	local rc = libevdev.libevdev_new_from_fd(fd, dev);
+	local rc = evdev.libevdev_new_from_fd(fd, dev);
 	if (rc < 0) then
          return nil, string.format("Failed to init libevdev (%s)\n", libc.strerror(-rc));
 	end
 	dev = dev[0];
-	ffi.gc(dev, libevdev.libevdev_free);
+	ffi.gc(dev, evdev.libevdev_free);
 
 	return EVDevice:init(dev, nodename);
 end
@@ -75,43 +75,43 @@ end
 
 
 function EVDevice.hasEventType(self, atype)
-	return libevdev.libevdev_has_event_type(self.Handle, atype) == 1;
+	return evdev.libevdev_has_event_type(self.Handle, atype) == 1;
 end
 
 function EVDevice.hasEventCode(self, eventType, eventCode)
-	return libevdev.libevdev_has_event_code(self.Handle, eventType, eventCode) == 1;
+	return evdev.libevdev_has_event_code(self.Handle, eventType, eventCode) == 1;
 end
 
 function EVDevice.hasProperty(self, prop)
-	local res =  libevdev.libevdev_has_property(self.Handle, prop);
+	local res =  evdev.libevdev_has_property(self.Handle, prop);
 	return res == 1;
 end
 
 -- Attributes
 function EVDevice.busType(self)
-	return tonumber(libevdev.libevdev_get_id_bustype(self.Handle));
+	return tonumber(evdev.libevdev_get_id_bustype(self.Handle));
 end
 
 function EVDevice.vendorId(self)
-	return tonumber(libevdev.libevdev_get_id_vendor(self.Handle));
+	return tonumber(evdev.libevdev_get_id_vendor(self.Handle));
 end
 
 function EVDevice.productId(self)
-    return tonumber(libevdev.libevdev_get_id_product(self.Handle));
+    return tonumber(evdev.libevdev_get_id_product(self.Handle));
 end
 
 function EVDevice.name(self, name)
-	local str = libevdev.libevdev_get_name(self.Handle);
+	local str = evdev.libevdev_get_name(self.Handle);
 	return libc.safeffistring(str);
 end
 
 function EVDevice.physical(self, name)
-	local str = libevdev.libevdev_get_phys(self.Handle)
+	local str = evdev.libevdev_get_phys(self.Handle)
 	return libc.safeffistring(str)
 end
 
 function EVDevice.unique(self, name)
-	local str = libevdev.libevdev_get_uniq(self.Handle)
+	local str = evdev.libevdev_get_uniq(self.Handle)
 	return libc.safeffistring(str)
 end
 
@@ -123,7 +123,7 @@ function EVDevice.isLikeFlightStick(self)
 end
 
 function EVDevice.isLikeKeyboard(self)
-	return self:name():lower():find("keyboard") ~= nil
+    return	self:hasEventCode(input.Constants.EV_KEY, input.Constants.KEY_SPACE)
 end
 
 function EVDevice.isLikeMouse(self)
@@ -165,7 +165,7 @@ function EVDevice.events(self, predicate)
 
 		if params.Predicate then
 			repeat
-				rc = libevdev.libevdev_next_event(params.Handle, flags, ev);
+				rc = evdev.libevdev_next_event(params.Handle, flags, ev);
 				if (rc == ffi.C.LIBEVDEV_READ_STATUS_SUCCESS) or (rc == ffi.C.LIBEVDEV_READ_STATUS_SYNC) then				
 					if params.Predicate(event) then
 						return flags, event
@@ -176,7 +176,7 @@ function EVDevice.events(self, predicate)
 				rc ~= -libc.EAGAIN	
 		else 
 			repeat
-				rc = libevdev.libevdev_next_event(params.Handle, flags, ev);
+				rc = evdev.libevdev_next_event(params.Handle, flags, ev);
 			until rc ~= -libc.EAGAIN
 		
 			if (rc == ffi.C.LIBEVDEV_READ_STATUS_SUCCESS) or (rc == ffi.C.LIBEVDEV_READ_STATUS_SYNC) then

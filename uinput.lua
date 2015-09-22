@@ -1,5 +1,9 @@
 local ffi = require("ffi")
 
+--[[
+	uinput is the event simulation interface.  Using these calls, you can 
+	inject events into the deve stream of events.
+--]]
 ffi.cdef[[
 struct libevdev_uinput;
 enum libevdev_uinput_open_mode {

@@ -36,10 +36,10 @@ local _IOC_NONE  = 0;
 local _IOC_WRITE = 1;
 local _IOC_READ  = 2;
 
-local function _IO(a,b) _IOC(_IOC_NONE,a,b,0) end
-local function _IOW(a,b,c) _IOC(_IOC_WRITE,a,b,ffi.sizeof(c)) end
-local function _IOR(a,b,c) _IOC(_IOC_READ,a,b,ffi.sizeof(c)) end
-local function _IOWR(a,b,c) _IOC(bor(_IOC_READ,_IOC_WRITE),a,b,ffi.sizeof(c)) end
+local function _IO(a,b) return _IOC(_IOC_NONE,a,b,0) end
+local function _IOW(a,b,c) return _IOC(_IOC_WRITE,a,b,ffi.sizeof(c)) end
+local function _IOR(a,b,c) return _IOC(_IOC_READ,a,b,ffi.sizeof(c)) end
+local function _IOWR(a,b,c) return _IOC(bor(_IOC_READ,_IOC_WRITE),a,b,ffi.sizeof(c)) end
 
 
 local function octal(value)
@@ -90,7 +90,7 @@ local exports = {
 	strerror = ffi.C.strerror;
 
 	-- Local functions
-
+	octal = octal;
 	safeffistring = safeffistring;
 
 	-- ioctl
