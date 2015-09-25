@@ -5,6 +5,8 @@ libevdev is a library which primarily wraps all the low level ioctl calls that
 support getting raw input device data (keyboard, mouse, joystick) on a Linux system.
 This binding brings the libevdev functions into the luajit environment.
 
+If you don't already have the libevdev.so installed on your machine, then you will want to install the package (Debian is libevdev-dev).
+
 There are two levels of interface.  At the lowest level, there are fairly raw ffi.cdef
 definitions for all the functions found within the library.  If you want to program 
 against an interface that is familiar to 'C' programming, then you can use the 'libevdev_ffi'

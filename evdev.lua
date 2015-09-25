@@ -11,7 +11,7 @@ local exports = {
     libevdev_set_log_function = LIB_libevdev.libevdev_set_log_function;
     libevdev_set_log_priority = LIB_libevdev.libevdev_set_log_priority;
     libevdev_get_log_priority = LIB_libevdev.libevdev_get_log_priority;
-    libevdev_set_device_log_function = LIB_libevdev.libevdev_set_device_log_function;
+    --libevdev_set_device_log_function = LIB_libevdev.libevdev_set_device_log_function;
 
 
   libevdev_next_event = LIB_libevdev.libevdev_next_event;
@@ -75,8 +75,8 @@ local exports = {
   libevdev_event_type_from_name_n = LIB_libevdev.libevdev_event_type_from_name_n;
   libevdev_event_code_from_name = LIB_libevdev.libevdev_event_code_from_name;
   libevdev_event_code_from_name_n = LIB_libevdev.libevdev_event_code_from_name_n;
-  libevdev_property_from_name = LIB_libevdev.libevdev_property_from_name;
-  libevdev_property_from_name_n = LIB_libevdev.libevdev_property_from_name_n;
+  --libevdev_property_from_name = LIB_libevdev.libevdev_property_from_name;
+  --libevdev_property_from_name_n = LIB_libevdev.libevdev_property_from_name_n;
   libevdev_get_repeat = LIB_libevdev.libevdev_get_repeat;
 }
 
